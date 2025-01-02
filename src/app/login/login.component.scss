@@ -1,5 +1,4 @@
 .main {
- 
     background-color: #fff;
     padding: 25px;
     width: 500px;
@@ -12,16 +11,16 @@
     form {
       width: 70%;
       margin: 10px auto;
-   
+
       label {
         font-weight: 500;
         font-size: 16px;
       }
-   
+
       .form-group{
         margin-bottom: 20px;
       }
-   
+
       .form-control {
         display: inline-block;
         width: 100%;
@@ -31,7 +30,7 @@
         border: 1px solid grey;
         outline: none;
       }
-   
+
       button{
         border: 1px solid black;
         padding: 7px 25px;
