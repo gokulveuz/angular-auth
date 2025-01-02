@@ -1,5 +1,5 @@
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { HttpService } from '../http-service/http.service';
 
 @Injectable({
   providedIn: 'root'
@@ -9,27 +9,16 @@ export class LoginService {
 
   private readonly tokenKey = 'authToken';
 
-  constructor(private httpService: HttpService) { }
-  login(username: string, password: string) {
+  constructor(private http:HttpClient) { }
+
+  login(data:any) {
     const loginData = {
-      username,
-      password
+      username:"gdojgd",
+      password:"sudgusgd"
     };
 
-    return this.httpService.post('/login', loginData)
-      .then(response => {
-        const token = response.data.token;
-        if (token) {
-          this.setAuthToken(token);
-          return token;
-        } else {
-          throw new Error('Token not received');
-        }
-      })
-      .catch(error => {
-        console.error('Login failed:', error);
-        throw error;
-      });
+
+
   }
 
   // Set the token in localStorage
