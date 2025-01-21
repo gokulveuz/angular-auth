@@ -1,8 +1,9 @@
-import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { LoginService } from './login.service';
+import { NgIf } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
-import { CommonModule, NgIf } from '@angular/common';
+import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { of, Subscription } from 'rxjs';
+import { catchError, finalize } from 'rxjs/operators';
+import { LoginService } from './login.service';
 
 @Component({
   selector: 'app-login',
@@ -16,8 +17,11 @@ export class LoginComponent implements OnInit {
   isRememberMe = false;
   inValid =false;
   warningMsg = '';
+  loading = false;
+  subscriptions: Subscription[] = [];
 
-  constructor(private LoginService:LoginService,private fb: FormBuilder)
+
+  constructor(private _loginService:LoginService,private fb: FormBuilder)
   {
 
   }
@@ -29,9 +33,9 @@ export class LoginComponent implements OnInit {
 
   initFormGroup(): void {
     this.loginForm = this.fb.group({
-      username: new FormControl('', [Validators.required, Validators.minLength(3)]),
+      username: new FormControl('', [Validators.required,Validators.email]),
       password: new FormControl('', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]),
-      remember_me: new FormControl('false')
+      remember_me: new FormControl(false)
     });
   }
 
@@ -46,7 +50,35 @@ export class LoginComponent implements OnInit {
       }
       return;
     }
-    console.log('loginform',this.loginForm);
+
+    const doHttpRequest = () => {
+
+      this.inValid = false;
+      this.loading = true;
+      this.subscriptions.push(this._loginService.login(this.createLoginBody())
+        .pipe(
+          catchError((err: any) => {
+            if (err.error.errorCode == 110) {
+              this.loading = false;
+              this.inValid = true;
+              this.warningMsg = "Invalid Credentials";
+            }
+
+            return of(false);
+          }),
+          finalize(() => this.loading = false),
+        )
+        .subscribe((res:any) => {
+          if (res.success) {
+            this._loginService.afterLogin(res);
+          } else {
+            this.inValid = true;
+          }
+        })
+      );
+    };
+    doHttpRequest();
+
   }
 
   onchange(env: any) {
